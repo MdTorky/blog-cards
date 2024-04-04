@@ -1,23 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import './App.css'; // Import the CSS file
+
+
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}
 
 function App() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://people.canonical.com/~anthonydillon/wp-json/wp/v2/posts');
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="containers">
+        {posts.map(post => (
+          <div className="container" key={post.id}>
+            <h2 className='container-title'>Cloud And Service</h2>
+            <hr />
+            <img src={post?.featured_media} className="" />
+            <h3>{post?.title.rendered}</h3>
+            <p>By <a href={post?._embedded.author[0].url}> {post._embedded.author[0].name}</a> on {formatDate(post.date)}</p>
+            <hr />
+            <h4>Article</h4>
+            {/* <div dangerouslySetInnerHTML={{ __html: post.content.rendered }} /> */}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
